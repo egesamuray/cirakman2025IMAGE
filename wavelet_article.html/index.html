@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Efficient and scalable posterior surrogate for seismic inversion via wavelet score-based generative models</title>
+    <style>
+        body {
+            font-family: 'Source Sans Pro', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.2em;
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.3em;
+        }
+        
+        h2 {
+            font-size: 1.8em;
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.2em;
+        }
+        
+        h3 {
+            font-size: 1.5em;
+        }
+        
+        .authors {
+            text-align: center;
+            margin-bottom: 2em;
+            font-style: italic;
+        }
+        
+        .affiliations {
+            text-align: center;
+            margin-bottom: 2em;
+            font-size: 0.9em;
+        }
+        
+        .abstract {
+            background-color: #f5f5f5;
+            padding: 1.5em;
+            border-left: 4px solid #2c3e50;
+            margin-bottom: 2em;
+            text-align: justify;
+        }
+        
+        .figure-container {
+            margin: 2em 0;
+            text-align: center;
+        }
+        
+        .figure {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            margin-bottom: 0.5em;
+        }
+        
+        .figure-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 10px;
+            margin: 2em 0;
+        }
+        
+        .figure-grid-item {
+            text-align: center;
+        }
+        
+        .figure-grid-item img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+        
+        .figure-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 1em 0;
+        }
+        
+        .figure-caption {
+            font-style: italic;
+            text-align: center;
+            margin-top: 0.5em;
+            font-size: 0.9em;
+            color: #555;
+        }
+        
+        .equation {
+            display: block;
+            text-align: center;
+            margin: 1.5em 0;
+            font-size: 1.1em;
+        }
+        
+        .references {
+            margin-top: 2em;
+            border-top: 1px solid #eaecef;
+            padding-top: 1em;
+        }
+        
+        .reference {
+            margin-bottom: 0.8em;
+            text-indent: -2em;
+            padding-left: 2em;
+            font-size: 0.9em;
+        }
+        
+        .scale-container {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            margin: 20px 0;
+        }
+        
+        .scale-arrow {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background-color: #000;
+        }
+        
+        .scale-arrow::after {
+            content: "";
+            position: absolute;
+            right: -10px;
+            top: -5px;
+            width: 0;
+            height: 0;
+            border-left: 12px solid #000;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+        }
+        
+        .scale-label-left {
+            position: absolute;
+            left: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9em;
+        }
+        
+        .scale-label-right {
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9em;
+        }
+        
+        .multiscale-figure {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1em 0;
+        }
+        
+        .multiscale-item {
+            text-align: center;
+        }
+        
+        .multiscale-item img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .multiscale-item:nth-child(1) img {
+            width: 100%;
+        }
+        
+        .multiscale-item:nth-child(2) img {
+            width: 100%;
+        }
+        
+        .multiscale-item:nth-child(3) img {
+            width: 100%;
+        }
+        
+        .multiscale-item:nth-child(4) img {
+            width: 100%;
+        }
+        
+        .multiscale-grid {
+            display: grid;
+            grid-template-columns: 13% 18% 23% 28%;
+            grid-gap: 6%;
+            margin: 1em 0;
+        }
+        
+        .full-width-figure {
+            width: 100%;
+            margin: 2em 0;
+            text-align: center;
+        }
+        
+        .full-width-figure img {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            h3 {
+                font-size: 1.3em;
+            }
+            
+            .figure-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .multiscale-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-gap: 10px;
+            }
+        }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                packages: ['base', 'ams', 'noerrors', 'noundefined']
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+</head>
+<body>
+    <h1>Efficient and scalable posterior surrogate for seismic inversion via wavelet score-based generative models</h1>
+    
+    <div class="authors">
+        <p>Ege Cirakman<sup>*1</sup>, Huseyin Tuna Erdinc<sup>*2</sup>, Felix J. Herrmann<sup>2</sup></p>
+    </div>
+    
+    <div class="affiliations">
+        <p><sup>1</sup>Istanbul Technical University, <sup>2</sup>Georgia Institute of Technology</p>
+    </div>
+    
+    <div class="abstract">
+        <p>Seismic inversion poses significant computational challenges due to its high dimensionality and non-unique solutions. We propose a novel method integrating the Wavelet Score-Based Generative Model (WSGM) with Simulation-Based Inference (SBI) to enable efficient posterior sampling for full-waveform inference. Our approach reduces memory requirements ($\approx 50\%$) and significantly decreases sampling time ($\approx 73\%$) compared to standard score-based diffusion models, while preserving accuracy. Furthermore, WSGM naturally supports the generation of velocity models at multiple resolutions, leveraging its hierarchical structure. Experimental results on pairs of synthetic seismic images and velocity models demonstrate that our method enables posterior sampling for large-scale 2D geophysical problems and facilitates the assessment of uncertainties relevant to subsurface characterization.</p>
+    </div>
+    
+    <h2>1. Introduction</h2>
+    
+    <p>Accurate subsurface characterization remains a fundamental challenge in geophysical exploration, with seismic inversion serving as the primary tool for reconstructing subsurface properties, such as the acoustic wave-speed. The inverse problem of estimating velocity models from seismic observations is inherently ill-posed due to its high dimensionality, non-uniqueness and sensitivity to noise (Virieux and Operto, 2009; Tarantola, 2005). As noted in the literature, traditional methods such as full-waveform inversion (FWI), that rely on point estimates, fail to capture the full uncertainty of the problem and do not produce posterior distributions, which is essential for informed decision-making in reservoir characterization and management (Siahkoohi et al., 2022; Fichtner and Trampert, 2013; Xiao and Fichtner, 2025).</p>
+    
+    <p>Recent advances in machine learning have introduced promising algorithms to develop neural surrogates for posterior distributions. Specifically, SBI can facilitate posterior approximation of posterior $p(\mathbf{x} \mid \mathbf{y})$ in Bayesian inference without explicit evaluation of the costly likelihood/simulator, in our case directly related to the creation of subsurface images (Cranmer et al., 2020). SBI can be implemented using various types of generative models, such as conditional normalizing flows (Papamakarios et al., 2021) or score-based generative models (Song et al., 2020), each with its own strengths and weaknesses. However, we observe that most of the existing generative modeling approaches often overlook the multiscale structure and long-range spatial correlations inherent in subsurface velocity models (Rizzuti et al., 2024).</p>
+    
+    <p>Based on this insight, we propose a conditional variation of WSGM (Guth and Bruna, 2022) within the SBI framework to perform posterior estimation for velocity inversion from seismic images. Our approach leverages Daubechies (db2) wavelets to decompose the posterior across multiple resolution scales (32×32 to 256×256), enabling hierarchical modeling and formulation of scale-specific score functions. This multi-scale factorization maintains consistency between observations and velocity estimates across resolutions, while reducing computational requirements compared to standard diffusion methods.</p>
+    
+    <p>The key contributions of this paper are as follows: (i) the introduction of conditional WSGM for posterior sampling in seismic inversion, (ii) a cascaded network architecture designed to reduce memory consumption, (iii) comprehensive experiments on synthetic datasets demonstrating superior performance in reconstructing complex velocity structures, and (iv) the generation of uncertainty estimates that correlate well with errors. The remainder of the paper is organized as follows: we present the theory, describe the experimental setup, and discuss the results, establishing WSGM as an efficient and scalable approach for probabilistic seismic inversion.</p>
+    
+    <h2>2. Theory</h2>
+    
+    <h3>2.1 Seismic imaging</h3>
+    
+    <p>Seismic imaging aims to reconstruct a velocity model $\mathbf{x} \in \mathbb{R}^n$ from seismic observations $\mathbf{y} \in \mathbb{R}^m$ recorded at the surface, governed by the forward model $\mathbf{y} = \mathcal{F}(\mathbf{x}) + \mathbf{\epsilon}$, where $\mathcal{F}: \mathbb{R}^n \rightarrow \mathbb{R}^m$ is a nonlinear operator solving the wave equation and $\mathbf{\epsilon}$ represents noise (Virieux and Operto, 2009). The inverse problem is ill-posed, non-uniqueness (e.g., $\mathcal{F}(\mathbf{x}_1) \approx \mathcal{F}(\mathbf{x}_2) \approx \mathbf{y}$) and computational expensive due to its high dimensionality. Traditional full-waveform inversion (FWI) minimizes $\|\mathcal{F}(\mathbf{x}) - \mathbf{y}\|_2^2$ misfit objective to estimate $\mathbf{x}$, but it provides only point estimates without systematic uncertainty quantification (Virieux and Operto, 2009). In contrast, our study targets estimation of the posterior $p(\mathbf{x} \mid \mathbf{y})$ in the Bayesian inference setting using the WSGM with SBI.</p>
+    
+    <h3>2.2 SBI for posterior estimation</h3>
+    
+    <p>SBI proposes to directly estimate posterior $p_{\theta}(\mathbf{x} \mid \mathbf{y})$ using simulated data pairs $\mathcal{D} = \{ (\mathbf{x}_i, \mathbf{y}_i) \}_{i=1}^{N}$, where $\mathbf{x}_i$'s are generated via the forward model, and train conditional generative models without explicit likelihood $p(\mathbf{y} \mid \mathbf{x})$ computation, which can be costly or physically impossible in many scientific settings (Cranmer et al., 2020). A common generative model, normalizing flows can perform this task; yet, the inherent invertible structure may cause limitations in its performance (Rizzuti et al., 2024). In this work, we instead adopt a Conditional Score-Based Generative Model—specifically, WSGM—within the SBI framework, enabling efficient posterior estimation across multiple scales. Notably, in our formulation $\mathbf{y}$ represents RTM images, which serve as summary statistics extracted from seismic observational data (Deans and Verdon, 2012; Yin et al., 2024).</p>
+    
+    <h3>2.3 Score-based generative models (SGMs) and WSGM</h3>
+    
+    <p>SGMs learn the gradient of the log-density (score function) $\nabla_{\mathbf{x}} \log p(\mathbf{x})$ using a neural network $s_{\theta}(\mathbf{x})$, typically trained via a denoising score-matching objective (Song et al., 2020). Sampling proceeds via Langevin dynamics (Hyvärinen, 2005): $\mathbf{x}_{t+1} = \mathbf{x}_t + \eta s_{\theta}(\mathbf{x}_t) + \sqrt{2\eta} \mathbf{n}_t$, where $\mathbf{n}_t \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ and $\eta$ is the step size. While SGMs have shown impressive results in image synthesis tasks (Ho et al., 2020), their application in scientific domains such as geophysics poses additional challenges. In these settings, score functions can be highly ill-conditioned due to long-range spatial correlations in the data, which result in poorly conditioned covariance structures. This makes both the training and sampling procedures significantly slower and more memory-intensive.</p>
+    
+    <p>WSGM addresses these challenges through a multi-scale decomposition. WSGM proposes to decompose data into scaling coefficients, $\mathbf{x}_j = \gamma_j^{-1} \mathbf{G} \mathbf{x}_{j-1}$, and detail coefficients, $\bar{\mathbf{x}}_j = \gamma_j^{-1} \bar{\mathbf{G}} \mathbf{x}_{j-1}$, using orthonormal wavelet filters $\mathbf{G}$ and $\bar{\mathbf{G}}$ where $j$ and $\gamma_j$ denote scale and scale dependent normalization, respectively. After completing the scale-wise decomposition, WSGM learns a separate score model for each scale. In other words, score estimation is performed through a hierarchical architecture, progressing from coarse to fine scales. Importantly, at each scale, the generation of detail coefficients is conditioned on the corresponding scaling coefficients. A key innovation in WSGM is the use of scale-specific normalization, where each scale is normalized based on its own mean and standard deviation. This results in faster whitening and accelerates the learning of scale-specific score functions. We argue that the wavelet-based scale decomposition in WSGM is particularly effective for seismic inversion problems, as velocity models naturally exhibit strong scale-dependent features and long-range spatial correlations.</p>
+    
+    <div class="figure-container">
+        <div class="scale-container">
+            <div class="scale-arrow"></div>
+            <div class="scale-label-left">Coarse scale</div>
+            <div class="scale-label-right">Fine scale</div>
+        </div>
+        
+        <div class="multiscale-grid">
+            <div class="multiscale-item">
+                <img src="images/j3_.png" alt="32×32 scale">
+                <div class="figure-caption">(a) 32×32</div>
+            </div>
+            <div class="multiscale-item">
+                <img src="images/j2_.png" alt="64×64 scale">
+                <div class="figure-caption">(b) 64×64</div>
+            </div>
+            <div class="multiscale-item">
+                <img src="images/j1_.png" alt="128×128 scale">
+                <div class="figure-caption">(c) 128×128</div>
+            </div>
+            <div class="multiscale-item">
+                <img src="images/WSGM_m1.png" alt="256×256 scale">
+                <div class="figure-caption">(d) 256×256</div>
+            </div>
+        </div>
+        
+        <div class="figure-caption">Figure 1: Multi-scale visualization showing the progression from coarse to fine resolution in wavelet space. The progression represents the hierarchical nature of the wavelet decomposition, with each level containing increasingly detailed geological structures.</div>
+    </div>
+    
+    <h3>2.4 Training objective and conditional WSGM</h3>
+    
+    <p>To enable posterior estimation in seismic inversion, we extend SGM and WSGM to learn the conditional score $\nabla_{\mathbf{x}} \log p(\mathbf{x} \mid \mathbf{y})$. For SGM, this involves training a network $s_{\theta}(\mathbf{x}, \mathbf{y}, \sigma(t))$ to approximate the score via a denoising objective conditioned on $\mathbf{y}$ (Batzolis et al., 2021; Song and Alkhalifah, 2024). Given paired data $(\mathbf{x}, \mathbf{y})$, the objective becomes:</p>
+    
+    <div class="equation">
+        $$\hat{\theta}_{\text{SGM}} = \arg\min_{\theta}\mathbb{E}_{\mathbf{y},\mathbf{x}, \mathbf{n}} \left\| s_{\theta}(\mathbf{x} + \mathbf{n}, \mathbf{y}, \sigma(t)) - \mathbf{x} \right\|_2^2$$
+    </div>
+    
+    <p>where $\mathbf{n} \sim \mathcal{N}(\mathbf{0}, \sigma(t)^2 \mathbf{I})$ and $\sigma(t)$ follows a noise schedule (Karras et al., 2022).</p>
+    
+    <p>For WSGM (Guth and Bruna, 2022), the multi-scale structure enables hierarchical conditioning and modeling. The posterior density can be expressed by hierarchical factorization as follows:</p>
+    
+    <div class="equation">
+        $$p(\mathbf{x} \mid \mathbf{y}) = p(\mathbf{x}_J \mid \mathbf{y}_J) \prod_{j = 1}^{J} p(\bar{\mathbf{x}}_j \mid \mathbf{x}_j, \bar{\mathbf{y}}_j)$$
+    </div>
+    
+    <p>where $\mathbf{x}_j$ is the velocity approximation at scale $j$, formed via normalized wavelet transform (WT) as $\text{WT}(\mathbf{x}_{j}) = (\mathbf{x}_{j+1}, \bar{\mathbf{x}}_{j+1})$ with $\mathbf{x}_j$ and $\bar{\mathbf{x}}_j$ representing scaling and detail coefficients at scale $j$ and $j=1$ corresponding to the finest scale. We can reverse the process with the inverse wavelet transform (IWT) and make similar arguments for $\mathbf{y}_j$.</p>
+    
+    <p>With this factorization, we have divided the learning process to different cascaded models. The learning at the coarsest scale ($j=J$) can be expressed with the objective of SGM. However, for finer scales the score network learns $s_{\theta_j}(\bar{\mathbf{x}}_j, \mathbf{x}_j, \bar{\mathbf{y}}_j,\sigma(t))$. The loss at scale $j$ integrates these dependencies and the objective becomes:</p>
+    
+    <div class="equation">
+        $$\hat{\theta}_{\text{WSGM}} = \arg\min_{\theta}\mathbb{E}_{\bar{\mathbf{y}}_j,\mathbf{x}_j,\bar{\mathbf{x}}_j,\mathbf{n}} \left\| s_{\theta}(\bar{\mathbf{x}}_j + \mathbf{n}, \mathbf{x}_j, \bar{\mathbf{y}}_j, \sigma(t)) - \bar{\mathbf{x}}_j \right\|_2^2$$
+    </div>
+    
+    <p>Posterior sampling proceeds by solving the reverse-time SDE conditioned on unseen $\mathbf{y}^{\text{obs}}$. For WSGM, this process occurs sequentially: the coarsest-scale velocity $\mathbf{x}_J$ is sampled first, followed by detail coefficients $\bar{\mathbf{x}}_J$, conditioned on $\mathbf{x}_J$ and $\bar{\mathbf{y}}_J$. Then inverse wavelet transform of aggregated scaling and detail coefficients are used to proceed with finer scale and this process is repeated up to the original scale of inputs.</p>
+    
+    <h2>3. Experiments and Results</h2>
+    
+    <h3>3.1 Dataset creation</h3>
+    
+    <p>To assess the proposed methodology, we utilize a synthetic 3D Earth model derived from the Compass model as a representative of geological formations in the North Sea region (BG Group and CGG, 2015). The training dataset pairs consisting of the 2D velocities sliced through the 3D synthetic model and reverse-time migration (RTM) pairs. The total number of training samples is 3000 and the computational grid/resolution is 256x256 with a spatial resolution of 6.25 m, each sample covering an area of 3.2km x 3.2km. Seismic wave data is generated with 16 sources and 256 receivers with a dominant frequency of 15 Hz and a recording duration of 1.8 seconds. To simulate real-world conditions, 10 dB SNR colored Gaussian noise is added to the shot records before migration. The migration process for RTM is preformed with a Gaussian severely smoothed 2D background model. Wave simulations and imaging are performed using the open-source package JUDI (Witte et al., 2019).</p>
+    
+    <h3>3.2 Inference results</h3>
+    
+    <div class="figure-container">
+        <div class="figure-grid">
+            <div class="figure-grid-item">
+                <img src="images/rtm483.png" alt="RTM" class="figure">
+                <div class="figure-caption">(a) RTM</div>
+            </div>
+            <div class="figure-grid-item">
+                <img src="images/483_velo_rainbow.png" alt="GT" class="figure">
+                <div class="figure-caption">(b) GT</div>
+            </div>
+            <div class="figure-grid-item">
+                <img src="images/gen8W.png" alt="WSGM" class="figure">
+                <div class="figure-caption">(c) WSGM</div>
+            </div>
+            <div class="figure-grid-item">
+                <img src="images/imagegen4WSGM.png" alt="SGM" class="figure">
+                <div class="figure-caption">(d) SGM</div>
+            </div>
+        </div>
+        <div class="figure-caption">Figure 2: Posterior sampling results showing: (a) initial RTM condition on which samples of posterior are conditioned, (b) ground-truth (GT) velocity model, (c) WSGM posterior sample, and (d) SGM posterior sample. The WSGM result shows superior preservation of fine-scale details and reduced noise.</div>
+    </div>
+    
+    <p>We trained both WSGM and SGM using identical hyperparameters within a 16GB GPU memory constraint. Following training, we conducted a comparative evaluation of their performance on posterior estimation tasks in seismic inversion. Figure 2 presents the ground-truth velocity model and the corresponding RTM image, alongside posterior samples generated by WSGM and SGM using the same initial noise seed. We observe that both models are able to capture the layered structure and long-range spatial correlations present in the velocity model.</p>
+    
+    <p>WSGM demonstrates higher reconstruction quality compared to SGM across multiple evaluation metrics: SSIM (0.77 vs. 0.69), PSNR (24.5.dB vs. 19.97.dB), and RMSE (0.1018 vs. 0.1078), where the first value corresponds to WSGM and the second to SGM. The Structural Similarity Index (SSIM) measures perceptual image quality, with values closer to 1 indicating greater similarity to the ground truth. Peak Signal-to-Noise Ratio (PSNR), expressed in decibels, quantifies the ratio between the maximum possible signal and the level of noise—higher PSNR values indicate better reconstruction fidelity. Root Mean Squared Error (RMSE) measures the average magnitude of error between the predicted and true velocity models, with lower values indicating higher accuracy. Collectively, these metrics confirm that WSGM produces more accurate and perceptually faithful posterior samples than SGM.</p>
+    
+    <div class="full-width-figure">
+        <img src="images/fig3_f.png" alt="Performance analysis and uncertainty quantification" class="figure">
+        <div class="figure-caption">Figure 3: Performance analysis and uncertainty quantification: (a) RTM condition, (b) ground-truth velocity model (GT) velocity, conditional mean posterior samples from (c) WSGM and (d) SGM, the standard deviation of (e) WSGM and (f) SGM, and RMSE for (g) WSGM and (h) SGM. Note the correlation between higher uncertainty and error regions.</div>
+    </div>
+    
+    <p>Uncertainty estimates play a crucial role in assessing the reliability of posterior samples. Well-calibrated networks can produce uncertainty estimates that correlate with the inherent errors in the model—a valuable feature in settings where ground truth data is unavailable or can never be observed. Figure 3 presents the posterior means, uncertainty estimates (standard deviations) and pixel-wise RMSE for both WSGM and SGM. The posterior means, conditioned on RTM, closely approximate the ground-truth velocity model. However, WSGM demonstrates superior performance by producing more sharper reflectors and preserving fine-scale velocity contrasts. This is quantitatively supported by WSGM's lower RMSE (0.1018 vs. 0.1078) and higher SSIM (0.77 vs. 0.69). The pixel-wise standard deviations in Figure 3 (g) and (h) reveal that both models yield uncertainty estimates that align with subsurface layering. Notably, high uncertainty values are observed along geological boundaries and in regions with complex structural features—areas typically associated with limited seismic illumination. These spatially coherent uncertainty patterns provide valuable insights for risk-aware decision-making in exploration and reservoir characterization.</p>
+    
+    <div class="figure-container">
+        <img src="images/fig4_s.png" alt="Comparison of GT, WSGM, and SGM" class="figure" style="width: 50%;">
+        <div class="figure-caption">Figure 4: Comparison of GT, WSGM, and SGM. Posterior samples for WSGM and SGM were generated starting from the same initial noise</div>
+    </div>
+    
+    <h2>4. Conclusion</h2>
+    
+    <p>We have presented a novel approach for seismic inversion that leverages wavelet-based score models within a simulation-based inference framework. Our method addresses key challenges in probabilistic seismic inversion by:</p>
+    
+    <ol>
+        <li>Reducing computational requirements while maintaining accuracy through multi-scale wavelet decomposition</li>
+        <li>Enabling efficient posterior sampling for high-dimensional velocity models</li>
+        <li>Providing reliable uncertainty quantification that correlates with prediction errors</li>
+        <li>Supporting multi-resolution inference through its hierarchical structure</li>
+    </ol>
+    
+    <p>These advantages make WSGM particularly suitable for large-scale geophysical applications where computational efficiency and uncertainty quantification are crucial. Future work will focus on extending this approach to 3D models and incorporating more complex physics, such as elastic wave propagation and anisotropy.</p>
+    
+    <h2>References</h2>
+    
+    <div class="references">
+        <div class="reference">Batzolis, D., Staneva, V., Schoenholz, S.S., Dillon, J.V. (2021). Conditional score-based diffusion models for Bayesian inference in infinite dimensions. arXiv preprint arXiv:2106.06863.</div>
+        
+        <div class="reference">BG Group and CGG (2015). The BG compass model. https://wiki.seg.org/wiki/Open_data.</div>
+        
+        <div class="reference">Cranmer, K., Brehmer, J., Louppe, G. (2020). The frontier of simulation-based inference. Proceedings of the National Academy of Sciences, 117(48), 30055-30062.</div>
+        
+        <div class="reference">Deans, J.H., Verdon, J.P. (2012). Maximally focused imaging and inversion of microseismic events. Geophysical Journal International, 189(3), 1683-1700.</div>
+        
+        <div class="reference">Fichtner, A., Trampert, J. (2013). Multiscale full waveform inversion. Geophysical Journal International, 194(1), 534-556.</div>
+        
+        <div class="reference">Guth, L., Bruna, J. (2022). Wavelet Score-Based Generative Modeling. arXiv preprint arXiv:2206.08889.</div>
+        
+        <div class="reference">Ho, J., Jain, A., Abbeel, P. (2020). Denoising diffusion probabilistic models. Advances in Neural Information Processing Systems, 33, 6840-6851.</div>
+        
+        <div class="reference">Hyvärinen, A. (2005). Estimation of non-normalized statistical models by score matching. Journal of Machine Learning Research, 6(Apr), 695-709.</div>
+        
+        <div class="reference">Karras, T., Aittala, M., Aila, T., Laine, S. (2022). Elucidating the design space of diffusion-based generative models. Advances in Neural Information Processing Systems, 35, 26565-26577.</div>
+        
+        <div class="reference">Papamakarios, G., Nalisnick, E., Rezende, D.J., Mohamed, S., Lakshminarayanan, B. (2021). Normalizing flows for probabilistic modeling and inference. Journal of Machine Learning Research, 22(57), 1-64.</div>
+        
+        <div class="reference">Rizzuti, G., Siahkoohi, A., Herrmann, F.J. (2024). Multiscale Bayesian Inference for Seismic Imaging. arXiv preprint arXiv:2401.12608.</div>
+        
+        <div class="reference">Siahkoohi, A., Rizzuti, G., Herrmann, F.J. (2022). Deep Bayesian inference for seismic imaging with tasks. Geophysics, 87(1), A1-A6.</div>
+        
+        <div class="reference">Song, C., Alkhalifah, T. (2024). FWI-Net: A physics-informed neural network for full waveform inversion. IEEE Transactions on Geoscience and Remote Sensing, 62, 1-14.</div>
+        
+        <div class="reference">Song, Y., Sohl-Dickstein, J., Kingma, D.P., Kumar, A., Ermon, S., Poole, B. (2020). Score-based generative modeling through stochastic differential equations. arXiv preprint arXiv:2011.13456.</div>
+        
+        <div class="reference">Tarantola, A. (2005). Inverse problem theory and methods for model parameter estimation. Society for Industrial and Applied Mathematics.</div>
+        
+        <div class="reference">Virieux, J., Operto, S. (2009). Overview of full-waveform inversion in exploration geophysics. Geophysics, 74(6), WCC1-WCC26.</div>
+        
+        <div class="reference">Witte, P.A., Louboutin, M., Kukreja, N., Luporini, F., Lange, M., Gorman, G.J., Herrmann, F.J. (2019). JUDI: an open-source Julia package for seismic modeling and inversion. Geophysics, 84(6), F75-F83.</div>
+        
+        <div class="reference">Xiao, Z., Fichtner, A. (2025). Uncertainty quantification in full waveform inversion: A review. Earth-Science Reviews, 247, 112160.</div>
+        
+        <div class="reference">Yin, Z., Orozco, R., Herrmann, F.J. (2024). WISE: Wavefield-informed structure-encoding neural networks for seismic inversion. IEEE Transactions on Geoscience and Remote Sensing, 62, 1-15.</div>
+    </div>
+</body>
+</html>
