@@ -1,0 +1,26 @@
+---
+title: "Wavelet Score-Based Generative Models"
+---
+
+# Efficient and scalable posterior surrogate for seismic inversion
+
+Welcome to the website for our research on wavelet score-based generative models for seismic inversion. This site presents our work on developing efficient and scalable posterior surrogates for seismic inversion using wavelet score-based generative models.
+
+## Abstract
+
+Seismic inversion poses significant computational challenges due to its high dimensionality and non-unique solutions. We propose a novel method integrating the Wavelet Score-Based Generative Model (WSGM) with Simulation-Based Inference (SBI) to enable efficient posterior sampling for full-waveform inference.
+
+[Read the full abstract →](abstract.qmd)
+
+## Key Contributions
+
+- Introduction of conditional WSGM for posterior sampling in seismic inversion
+- A cascaded network architecture designed to reduce memory consumption
+- Comprehensive experiments on synthetic datasets demonstrating superior performance
+- Generation of uncertainty estimates that correlate well with errors
+
+## Authors
+
+- Ege Cirakman (Istanbul Technical University)
+- Huseyin Tuna Erdinc (Georgia Institute of Technology)
+- Felix J. Herrmann (Georgia Institute of Technology)

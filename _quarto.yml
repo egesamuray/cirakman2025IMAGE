@@ -1,0 +1,31 @@
+project:
+  type: website
+website:
+  title: "Efficient and scalable posterior surrogate for seismic inversion via wavelet score-based generative models"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+    right:
+      - icon: github
+        href: https://github.com/slimgroup
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - section: "Abstracts"
+        contents:
+        - file: abstract.qmd
+          text: "Wavelet Score-Based Generative Models"
+  page-footer: "2025 Copyright (c) SLIM @ Georgia Institute of Technology"
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    css: styles.css
+    lightbox: True
+    toc: true
+    link-external-newwindow: True
+execute:
+  freeze: auto
