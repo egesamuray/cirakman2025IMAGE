@@ -23,6 +23,62 @@ format:
     lightbox: true
     crossrefs-hover: true
     css: styles.css
+    include-in-header:
+      text: |
+        <style>
+        .scale-container {
+          position: relative;
+          width: 100%;
+          height: 50px;
+          margin: 20px 0;
+        }
+        .scale-arrow {
+          position: absolute;
+          top: 50%;
+          left: 10%;
+          right: 10%;
+          height: 2px;
+          background-color: #000;
+        }
+        .scale-arrow::after {
+          content: "";
+          position: absolute;
+          right: -10px;
+          top: -5px;
+          width: 0;
+          height: 0;
+          border-left: 12px solid #000;
+          border-top: 6px solid transparent;
+          border-bottom: 6px solid transparent;
+        }
+        .scale-label-left {
+          position: absolute;
+          left: 5%;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 0.9em;
+        }
+        .scale-label-right {
+          position: absolute;
+          right: 5%;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 0.9em;
+        }
+        .multiscale-grid {
+          display: grid;
+          grid-template-columns: 13% 18% 23% 28%;
+          grid-gap: 6%;
+          margin: 1em 0;
+        }
+        .multiscale-item {
+          text-align: center;
+        }
+        .multiscale-item img {
+          width: 100%;
+          height: auto;
+        }
+        </style>
   pdf:
     template: IMAGEAbstractTemplate.latex
     csl: apa.csl
@@ -127,32 +183,31 @@ To assess the proposed methodology, we utilize a synthetic 3D Earth model derive
 </figure>
 ```
 
+::: {#fig-multiscale .quarto-figure .quarto-figure-center}
 ```{=html}
-<figure id="fig-multiscale" class="multiscale-container quarto-figure quarto-figure-center">
-  <div class="scale-container">
-    <div class="scale-arrow"></div>
-    <div class="scale-label-left">Coarse scale</div>
-    <div class="scale-label-right">Fine scale</div>
+<div class="scale-container">
+  <div class="scale-arrow"></div>
+  <div class="scale-label-left">Coarse scale</div>
+  <div class="scale-label-right">Fine scale</div>
+</div>
+<div class="multiscale-grid">
+  <div class="multiscale-item">
+    <img src="./figs/j3_.png" alt="32×32">
   </div>
-  <div class="multiscale-grid">
-    <div class="multiscale-item">
-      <img src="./figs/j3_.png" alt="32×32" width="100%">
-    </div>
-    <div class="multiscale-item">
-      <img src="./figs/j2_.png" alt="64×64" width="100%">
-    </div>
-    <div class="multiscale-item">
-      <img src="./figs/j1_.png" alt="128×128" width="100%">
-    </div>
-    <div class="multiscale-item">
-      <img src="./figs/WSGM_m1.png" alt="256×256" width="100%">
-    </div>
+  <div class="multiscale-item">
+    <img src="./figs/j2_.png" alt="64×64">
   </div>
-  <figcaption>
-    <p>Figure 2: Multi-scale visualization showing the progression from coarse to fine resolution in wavelet space. The progression represents the hierarchical nature of the wavelet decomposition, with each level containing increasingly detailed geological structures.</p>
-  </figcaption>
-</figure>
+  <div class="multiscale-item">
+    <img src="./figs/j1_.png" alt="128×128">
+  </div>
+  <div class="multiscale-item">
+    <img src="./figs/WSGM_m1.png" alt="256×256">
+  </div>
+</div>
 ```
+
+Multi-scale visualization showing the progression from coarse to fine resolution in wavelet space. The progression represents the hierarchical nature of the wavelet decomposition, with each level containing increasingly detailed geological structures.
+:::
 
 ```{=html}
 <figure id="fig-performance" class="full-width-figure quarto-figure quarto-figure-center">
