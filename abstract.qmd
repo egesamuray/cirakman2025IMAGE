@@ -123,30 +123,30 @@ To assess the proposed methodology, we utilize a synthetic 3D Earth model derive
 Posterior sampling results showing: (a) initial RTM condition on which samples of posterior are conditioned, (b) ground-truth (GT) velocity model, (c) WSGM posterior sample, and (d) SGM posterior sample. The WSGM result shows superior preservation of fine-scale details and reduced noise.
 :::
 
-::: {#fig-multiscale .multiscale-container}
-<div class="scale-container">
+```{=html}
+<figure id="fig-multiscale" class="multiscale-container quarto-figure quarto-figure-center">
+  <div class="scale-container">
     <div class="scale-arrow"></div>
     <div class="scale-label-left">Coarse scale</div>
     <div class="scale-label-right">Fine scale</div>
-</div>
-
-<div class="multiscale-grid">
+  </div>
+  <div class="multiscale-grid">
     <div class="multiscale-item">
-        ![32×32](./figs/j3_.png){width="100%"}
+      <img src="./figs/j3_.png" alt="32×32" width="100%">
     </div>
     <div class="multiscale-item">
-        ![64×64](./figs/j2_.png){width="100%"}
+      <img src="./figs/j2_.png" alt="64×64" width="100%">
     </div>
     <div class="multiscale-item">
-        ![128×128](./figs/j1_.png){width="100%"}
+      <img src="./figs/j1_.png" alt="128×128" width="100%">
     </div>
     <div class="multiscale-item">
-        ![256×256](./figs/WSGM_m1.png){width="100%"}
+      <img src="./figs/WSGM_m1.png" alt="256×256" width="100%">
     </div>
-</div>
-
-Multi-scale visualization showing the progression from coarse to fine resolution in wavelet space. The progression represents the hierarchical nature of the wavelet decomposition, with each level containing increasingly detailed geological structures.
-:::
+  </div>
+  <figcaption>Figure 2: Multi-scale visualization showing the progression from coarse to fine resolution in wavelet space. The progression represents the hierarchical nature of the wavelet decomposition, with each level containing increasingly detailed geological structures.</figcaption>
+</figure>
+```
 
 ::: {#fig-performance .full-width-figure}
 ![Performance analysis and uncertainty quantification: (a) RTM condition, (b) ground-truth velocity model (GT) velocity, conditional mean posterior samples from (c) WSGM and (d) SGM, the standard deviation of (e) WSGM and (f) SGM, and RMSE for (g) WSGM and (h) SGM. Note the correlation between higher uncertainty and error regions.](./figs/fig3_f.png){width="100%"}
