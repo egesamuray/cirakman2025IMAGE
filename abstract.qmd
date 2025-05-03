@@ -3,22 +3,22 @@ title: "Efficient and scalable posterior surrogate for seismic inversion via wav
 author:
   - name: Ege Cirakman
     affiliations:
-      name: Istanbul Technical University
-  - name: Huseyin Tuna Erdinc
+      - Istanbul Technical University
+  - name: Huseyin Tuna Erdinc  
     affiliations:
-      name: Georgia Institute of Technology
+      - Georgia Institute of Technology
   - name: Felix J. Herrmann
     affiliations:
-      name: Georgia Institute of Technology
+      - Georgia Institute of Technology
 filters:
   - SLIM
 bibliography: abstract.bib
 cite-method: citeproc
-csl: ref_styles/geophysical-journal-international.csl
+csl: geophysical-journal-international.csl
 crossref:
   fig-title: "Figure"
   fig-prefix: "Figure"
-  eq-prefix: equation
+  eq-prefix: "equation"
 number-depth: 3
 pdf-engine: pdflatex
 format:
@@ -32,20 +32,22 @@ format:
   arxiv-pdf:
     keep-tex: true  
     authorcols: true
-abstract: "Seismic inversion poses significant computational challenges due to its high dimensionality and non-unique solutions. We propose a novel method integrating the Wavelet Score-Based Generative Model (WSGM) with Simulation-Based Inference (SBI) to enable efficient posterior sampling for full-waveform inference. Our approach reduces memory requirements ($\\approx 50\\%$) and significantly decreases sampling time ($\\approx 73\\%$) compared to standard score-based diffusion models, while preserving accuracy. Furthermore, WSGM naturally supports the generation of velocity models at multiple resolutions, leveraging its hierarchical structure. Experimental results on pairs of synthetic seismic images and velocity models demonstrate that our method enables posterior sampling for large-scale 2D geophysical problems and facilitates the assessment of uncertainties relevant to subsurface characterization."
+    number-sections: false
+abstract: |
+  Seismic inversion poses significant computational challenges due to its high dimensionality and non-unique solutions. We propose a novel method integrating the Wavelet Score-Based Generative Model (WSGM) with Simulation-Based Inference (SBI) to enable efficient posterior sampling for full-waveform inference. Our approach reduces memory requirements (≈50%) and significantly decreases sampling time (≈73%) compared to standard score-based diffusion models, while preserving accuracy. Furthermore, WSGM naturally supports the generation of velocity models at multiple resolutions, leveraging its hierarchical structure. Experimental results on pairs of synthetic seismic images and velocity models demonstrate that our method enables posterior sampling for large-scale 2D geophysical problems and facilitates the assessment of uncertainties relevant to subsurface characterization.
 ---
 
 ::: {.hidden}
-\\newcommand{\\argmin}{\\mathop{\\mathrm{argmin}\\,}\\limits}
-\\newcommand{\\argmax}{\\mathop{\\mathrm{argmax}\\,}\\limits}
-<span class="math inline">\\(\\def\\textsc#1{\\dosc#1\\csod} \\def\\dosc#1#2\\csod{{\\rm #1{\\small #2}}}\\)</span>
+\newcommand{\argmin}{\mathop{\mathrm{argmin}\,}\limits}
+\newcommand{\argmax}{\mathop{\mathrm{argmax}\,}\limits}
+$\def\textsc#1{\dosc#1\csod} \def\dosc#1#2\csod{{\rm #1{\small #2}}}$
 :::
 
 # Introduction
 
 Accurate subsurface characterization remains a fundamental challenge in geophysical exploration, with seismic inversion serving as the primary tool for reconstructing subsurface properties, such as the acoustic wave-speed. The inverse problem of estimating velocity models from seismic observations is inherently ill-posed due to its high dimensionality, non-uniqueness and sensitivity to noise [@virieux2009overview; @Tarantola2005InverseProblemTheory]. As noted in the literature, traditional methods such as full-waveform inversion (FWI), that rely on point estimates, fail to capture the full uncertainty of the problem and do not produce posterior distributions, which is essential for informed decision-making in reservoir characterization and management [@siahkoohi2022deep; @fichtner2013multiscale; @XIAO2025112160].
 
-Recent advances in machine learning have introduced promising algorithms to develop neural surrogates for posterior distributions. Specifically, SBI can facilitate posterior approximation of posterior $p(\mathbf{x} \mid \mathbf{y})$ in Bayesian inference without explicit evaluation of the costly likelihood/simulator, in our case directly related to the creation of subsurface images [@cranmer2020frontier]. SBI can be implemented using various types of generative models, such as conditional normalizing flows [@normalizing_flow] or score-based generative models [@song2020score], each with its own strengths and weaknesses. However, we observe that most of the existing generative modeling approaches often overlook the multiscale structure and long-range spatial correlations inherent in subsurface velocity models [@Rizzuti2024Multiscale].
+Recent advances in machine learning have introduced promising algorithms to develop neural surrogates for posterior distributions. Specifically, SBI can facilitate posterior approximation of posterior $p(\mathbf{x} \mid \mathbf{y})$ in Bayesian inference without explicit evaluation of the costly likelihood/simulator, in our case directly related to the creation of subsurface images [@cranmer2020frontier]. SBI can be implemented using various types of generative models, such as conditional normalizing flows [@normalizing_flow] or score-based generative models [@song2020score], each with its own strengths and weaknesses. However, we observe that most of the existing generative modeling approaches often overlook the multiscale structure and long-range spatial correlations inherent in subsurface velocity models [@rizzuti2024multiscale].
 
 Based on this insight, we propose a conditional variation of WSGM [@guth2022waveletscorebasedgenerativemodeling] within the SBI framework to perform posterior estimation for velocity inversion from seismic images. Our approach leverages Daubechies (db2) wavelets to decompose the posterior across multiple resolution scales ($32 \times 32$ to $256 \times 256$), enabling hierarchical modeling and formulation of scale-specific score functions. This multi-scale factorization maintains consistency between observations and velocity estimates across resolutions, while reducing computational requirements compared to standard diffusion methods.
 
@@ -59,7 +61,7 @@ Seismic imaging aims to reconstruct a velocity model $\mathbf{x} \in \mathbb{R}^
 
 ## SBI for posterior estimation
 
-SBI proposes to directly estimate posterior $p_{\theta}(\mathbf{x} \mid \mathbf{y})$ using simulated data pairs $\mathcal{D} = \{ (\mathbf{x}_i, \mathbf{y}_i) \}_{i=1}^{N}$, where $\mathbf{x}_i$'s are generated via the forward model, and train conditional generative models without explicit likelihood $p(\mathbf{y} \mid \mathbf{x})$ computation, which can be costly or physically impossible in many scientific settings [@cranmer2020frontier]. A common generative model, normalizing flows can perform this task; yet, the inherent invertible structure may cause limitations in its performance [@Rizzuti2024Multiscale]. In this work, we instead adopt a Conditional Score-Based Generative Model—specifically, WSGM—within the SBI framework, enabling efficient posterior estimation across multiple scales. Notably, in our formulation $\mathbf{y}$ represents RTM images, which serve as summary statistics extracted from seismic observational data [@deans2002maximally; @yin2024wise].
+SBI proposes to directly estimate posterior $p_{\theta}(\mathbf{x} \mid \mathbf{y})$ using simulated data pairs $\mathcal{D} = \{ (\mathbf{x}_i, \mathbf{y}_i) \}_{i=1}^{N}$, where $\mathbf{x}_i$'s are generated via the forward model, and train conditional generative models without explicit likelihood $p(\mathbf{y} \mid \mathbf{x})$ computation, which can be costly or physically impossible in many scientific settings [@cranmer2020frontier]. A common generative model, normalizing flows can perform this task; yet, the inherent invertible structure may cause limitations in its performance [@rizzuti2024multiscale]. In this work, we instead adopt a Conditional Score-Based Generative Model—specifically, WSGM—within the SBI framework, enabling efficient posterior estimation across multiple scales. Notably, in our formulation $\mathbf{y}$ represents RTM images, which serve as summary statistics extracted from seismic observational data [@deans2002maximally; @yin2024wise].
 
 ## Score-based generative models (SGMs) and WSGM
 
@@ -102,22 +104,24 @@ To assess the proposed methodology, we utilize a synthetic 3D Earth model derive
 ## Inference results
 
 ::: {#fig-composite layout-ncol=2}
-![RTM](./figs/rtm483.png){#fig-rtm width="90%"}
+![RTM](./figs/rtm483.png){width="90%"}
 
-![GT](./figs/483_velo_rainbow.png){#fig-gt width="90%"}
+![GT](./figs/483_velo_rainbow.png){width="90%"}
 
-![WSGM](./figs/gen8W.png){#fig-wsgm width="90%"}
+![WSGM](./figs/gen8W.png){width="90%"}
 
-![SGM](./figs/imagegen4WSGM.png){#fig-sgm width="90%"}
+![SGM](./figs/imagegen4WSGM.png){width="90%"}
 
 Posterior sampling results showing: (a) initial RTM condition on which samples of posterior are conditioned, (b) ground-truth (GT) velocity model, (c) WSGM posterior sample, and (d) SGM posterior sample. The WSGM result shows superior preservation of fine-scale details and reduced noise.
 :::
 
-::: {#fig-multiscale layout="[[-5,90,-5]]"}
-![](./figs/j3_.png){width="6.25%"}
-![](./figs/j2_.png){width="12.5%"}
-![](./figs/j1_.png){width="25%"}
-![](./figs/WSGM_m1.png){width="50%"}
+::: {#fig-multiscale}
+::: {style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;"}
+![32×32](./figs/j3_.png){width="6.25%" style="margin-bottom: 0; height: auto;"}  
+![64×64](./figs/j2_.png){width="12.5%" style="margin-bottom: 0; height: auto;"}  
+![128×128](./figs/j1_.png){width="25%" style="margin-bottom: 0; height: auto;"}  
+![256×256](./figs/WSGM_m1.png){width="50%" style="margin-bottom: 0; height: auto;"}
+:::
 
 Multi-scale visualization showing the progression from coarse to fine resolution in wavelet space. The progression represents the hierarchical nature of the wavelet decomposition, with each level containing increasingly detailed geological structures.
 :::
