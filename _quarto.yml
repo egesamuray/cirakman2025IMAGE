@@ -29,3 +29,4 @@ format:
       fig-prefix: "Figure"
     citations-hover: true
     footnotes-hover: true
+    link-external-newwindow: true
