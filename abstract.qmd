@@ -18,13 +18,7 @@ csl: ref_styles/ieee-transactions-on-geoscience-and-remote-sensing.csl
 crossref:
   fig-title: "Figure"
   fig-prefix: "Figure"
-  # fig-labels: "**arabic**"
   eq-prefix: equation
-  # fig-numbering: false
-# toc: true
-# toc-location: right
-# number-sections: true
-number-depth: 3
 pdf-engine: pdflatex
 format:
   html:
@@ -32,24 +26,9 @@ format:
     sidebar: false
     lightbox: true
     crossrefs-hover: true
-    # crossref:
-    #   fig-numbering: false
   arxiv-pdf:
     keep-tex: true  
     authorcols: true
-    # linenumbers: true
-    # doublespacing: true
-  # pdf:
-  #   template: template/Neurips_2024.tex
-  #   # csl: apa.csl
-  #   keep-tex: true
-  #   appendix: true
-  #   documentclass: article
-  #   geometry:
-  #     - top=1in
-  #     - bottom=1in
-  #     - left=1in
-  #     - right=1in
 abstract: "Seismic inversion poses significant computational challenges due to its high dimensionality and non-unique solutions. We propose a novel method integrating the Wavelet Score-Based Generative Model (WSGM) with Simulation-Based Inference (SBI) to enable efficient posterior sampling for full-waveform inference. Our approach reduces memory requirements ($\\approx 50\\%$) and significantly decreases sampling time ($\\approx 73\\%$) compared to standard score-based diffusion models, while preserving accuracy. Furthermore, WSGM naturally supports the generation of velocity models at multiple resolutions, leveraging its hierarchical structure. Experimental results on pairs of synthetic seismic images and velocity models demonstrate that our method enables posterior sampling for large-scale 2D geophysical problems and facilitates the assessment of uncertainties relevant to subsurface characterization."
 ---
 
@@ -68,7 +47,7 @@ $$
 
 Accurate subsurface characterization remains a fundamental challenge in geophysical exploration, with seismic inversion serving as the primary tool for reconstructing subsurface properties, such as the acoustic wave-speed. The inverse problem of estimating velocity models from seismic observations is inherently ill-posed due to its high dimensionality, non-uniqueness and sensitivity to noise [@virieux2009overview; @Tarantola2005InverseProblemTheory]. As noted in the literature, traditional methods such as full-waveform inversion (FWI), that rely on point estimates, fail to capture the full uncertainty of the problem and do not produce posterior distributions, which is essential for informed decision-making in reservoir characterization and management [@siahkoohi2022deep; @fichtner2013multiscale; @XIAO2025112160].
 
-Recent advances in machine learning have introduced promising algorithms to develop neural surrogates for posterior distributions. Specifically, SBI can facilitate posterior approximation of posterior $p(\mathbf{x} \mid \mathbf{y})$ in Bayesian inference without explicit evaluation of the costly likelihood/simulator, in our case directly related to the creation of subsurface images [@cranmer2020frontier]. SBI can be implemented using various types of generative models, such as conditional normalizing flows [@normalizing_flow] or score-based generative models [@song2020score], each with its own strengths and weaknesses. However, we observe that most of the existing generative modeling approaches often overlook the multiscale structure and long-range spatial correlations inherent in subsurface velocity models [@rizzuti2024multiscale].
+Recent advances in machine learning have introduced promising algorithms to develop neural surrogates for posterior distributions. Specifically, SBI can facilitate posterior approximation of posterior $p(\mathbf{x} \mid \mathbf{y})$ in Bayesian inference without explicit evaluation of the costly likelihood/simulator, in our case directly related to the creation of subsurface images [@cranmer2020frontier]. SBI can be implemented using various types of generative models, such as conditional normalizing flows [@normalizing_flow] or score-based generative models [@song2020score], each with its own strengths and weaknesses. However, we observe that most of the existing generative modeling approaches often overlook the multiscale structure and long-range spatial correlations inherent in subsurface velocity models [@Rizzuti2024Multiscale].
 
 Based on this insight, we propose a conditional variation of WSGM [@guth2022waveletscorebasedgenerativemodeling] within the SBI framework to perform posterior estimation for velocity inversion from seismic images. Our approach leverages Daubechies (db2) wavelets to decompose the posterior across multiple resolution scales ($32 \times 32$  to $256 \times 256$), enabling hierarchical modeling and formulation of scale-specific score functions. This multi-scale factorization maintains consistency between observations and velocity estimates across resolutions, while reducing computational requirements compared to standard diffusion methods. 
 
@@ -82,7 +61,7 @@ Seismic imaging aims to reconstruct a velocity model $\mathbf{x} \in \mathbb{R}^
 
 ## SBI for posterior estimation
 
-SBI proposes to directly estimate posterior $p_{\theta}(\mathbf{x} \mid \mathbf{y})$ using simulated data pairs $\mathcal{D} = \{ (\mathbf{x}_i, \mathbf{y}_i) \}_{i=1}^{N}$, where $\mathbf{x}_i$'s are generated via the forward model, and train conditional generative models without explicit likelihood $p(\mathbf{y} \mid \mathbf{x})$ computation, which can be costly or physically impossible in many scientific settings [@cranmer2020frontier]. A common generative model, normalizing flows can perform this task; yet, the inherent invertible structure may cause limitations in its performance [@rizzuti2024multiscale]. In this work, we instead adopt a Conditional Score-Based Generative Model—specifically, WSGM—within the SBI framework, enabling efficient posterior estimation across multiple scales.
+SBI proposes to directly estimate posterior $p_{\theta}(\mathbf{x} \mid \mathbf{y})$ using simulated data pairs $\mathcal{D} = \{ (\mathbf{x}_i, \mathbf{y}_i) \}_{i=1}^{N}$, where $\mathbf{x}_i$'s are generated via the forward model, and train conditional generative models without explicit likelihood $p(\mathbf{y} \mid \mathbf{x})$ computation, which can be costly or physically impossible in many scientific settings [@cranmer2020frontier]. A common generative model, normalizing flows can perform this task; yet, the inherent invertible structure may cause limitations in its performance [@Rizzuti2024Multiscale]. In this work, we instead adopt a Conditional Score-Based Generative Model—specifically, WSGM—within the SBI framework, enabling efficient posterior estimation across multiple scales.
 Notably, in our formulation $\mathbf{y}$ represents RTM images, which serve as summary statistics extracted from seismic observational data [@deans2002maximally; @yin2024wise].
 
 ## Score-based generative models (SGMs) and WSGM
