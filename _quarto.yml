@@ -1,0 +1,17 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Efficient and scalable posterior surrogate for seismic inversion via wavelet score-based generative models"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+  page-navigation: true
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
