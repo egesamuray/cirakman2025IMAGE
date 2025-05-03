@@ -1,4 +1,4 @@
-markdown# Efficient and scalable posterior surrogate for seismic inversion via wavelet score-based generative models
+# Efficient and scalable posterior surrogate for seismic inversion via wavelet score-based generative models
 
 This repository contains the code and documentation for our paper on wavelet score-based generative models for seismic inversion.
 
